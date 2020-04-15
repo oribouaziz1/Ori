@@ -1,0 +1,1256 @@
+
+;proc PushAll
+	;pop [Adress]
+	;push bp
+	;mov bp, sp
+	;push si
+	;push di
+	;push ax
+	;push bx
+	;push cx
+	;push dx
+	;push [Adress]
+	;ret
+;endp PushAll
+
+;proc PopAll
+	;pop [Adress]
+	;pop dx
+	;pop cx
+	;pop bx
+	;pop ax
+;	pop di
+	;pop si
+	;pop bp
+	;push [Adress]
+	;ret
+;endp PopAll
+
+macro PushAll ;גיבוי רגיסטרים
+push ax
+push bx
+push cx
+push dx
+push di
+push si
+push bp
+endm PushAll
+
+;--------------------------------------------
+
+
+macro PopAll ;החזרת ערכי הרגיסטרים מהגיבוי
+pop bp
+pop si
+pop di
+pop dx
+pop cx
+pop bx
+pop ax
+endm PopAll
+
+
+;--------------------------------------------
+macro RestReg
+xor ax,ax
+xor bx,bx
+xor cx,cx
+xor dx,dx
+xor di,di
+xor si,si
+
+endm RestReg
+
+
+
+;--------------------------------------------
+macro ActiveMouse
+
+mov ax,1h
+int 33h
+
+endm ActiveMouse
+;--------------------------------------------
+;--------------------------------------------
+macro iMouse
+; Initializes the mouse
+
+mov ax,0h
+int 33h
+
+endm iMouse
+;--------------------------------------------
+;--------------------------------------------
+macro TMouse
+; Initializes the mouse
+
+MOV AX,3h ;tishul
+     INT 33h 
+
+endm TMouse
+;--------------------------------------------
+proc keletNum
+
+mov ah, 1h
+int 21h
+sub al, '0' 
+
+ret
+endp keletNum
+
+;--------------------------------------------
+
+proc keletTav
+mov ah, 1h
+int 21h 
+
+ret
+endp keletTav
+
+;--------------------------------------------
+
+
+
+proc PixelPrintS
+
+	
+	MOV AH,0Ch
+	MOV AL,[color]
+	MOV CX,[Column] ; 0 ≤ X ≤ 319
+	MOV DX,[Row]	; 0 ≤ Y ≤ 199
+	INT 10H
+
+	ret
+endp PixelPrintS
+
+;--------------------------------------------
+
+proc checkColor
+; AL=color
+	pop [Adress]
+	pushall
+	mov di,[xball]
+	mov [column],di
+	mov si,[yball]
+	mov [row],si
+	inc [row]
+	sub [counterCheck],2
+	checking:
+	MOV AH,0Dh
+	MOV CX,[COLUMN] ; 0 ≤ X ≤ 319
+	MOV DX,[ROW]	; 0 ≤ Y ≤ 199
+	INT 10h
+	mov [colorChecked],al
+	CMP [colorChecked],0
+	JNE exitChecking
+	
+	cmp [counterCheck],3; 
+	jae exitChecking
+	inc [counterCheck]
+	inc [row]
+	JMP Checking
+	
+	mov [counterCheck],0
+	
+	exitChecking:
+	popall
+	jmp return
+	
+endp checkColor
+;--------------------------------------------
+
+proc printingSquers
+pop [adress]
+	mov [column], 70; x
+	mov [row],90; y
+
+
+		xor bX,bX
+		mov si ,[column]
+		mov di,[row]
+		
+	 xor cx,cx
+	 xor ax,ax
+	 
+	PrintSqures:
+
+
+	cmp [counterS],0
+	je SquresCreate
+
+	add [row],22
+	xor bx,bx
+	sub [column],110
+	
+
+	SquresCreate:
+
+	inc bl
+	
+	 add [column],22
+	 
+	 
+	 
+	 mov cx,[column]
+	 mov ax,[row]
+	 mov [saveColumnS],cx
+	 mov [saveRowS],ax
+
+	mov [color],bl
+	 call lineprintA
+	 
+	
+	 mov cx,[savecolumnS]
+	 mov ax,[saverowS]
+	 mov [Column],cx
+	 mov [Row],ax
+	 
+	 
+	 call lineprintO
+	 
+	 mov cx,[savecolumnS]
+	 mov ax,[saverowS]
+	 mov [Column],cx
+	 mov [Row],ax
+	
+	 cmp bl,5
+	 jne SquresCreate
+	 inc [counterS]
+	 cmp [counterS],1
+	 
+	 jne PrintSqures
+
+	 push [adress]
+	 ret 
+	 endp printingSquers
+
+;--------------------------------------------
+
+proc deleteSquaresRow
+pop [adress]
+	
+	mov [column], 70; x
+	mov [row],90; y
+	mov [color],0
+
+		xor bX,bX
+		mov si ,[column]
+		mov di,[row]
+		
+	 xor cx,cx
+	 xor ax,ax
+	 mov [counterD],0
+	deleteSquares:
+
+
+	cmp [counterD],0
+	je SquaresDelete
+
+	add [row],22
+	xor bx,bx
+	sub [column],110
+	
+
+	Squaresdelete:
+inc bl
+	
+	
+	 add [column],22
+	 
+	 
+	 
+	 mov cx,[column]
+	 mov ax,[row]
+	 mov [saveColumnS],cx
+	 mov [saveRowS],ax
+
+	
+	 call lineprintA
+	 
+	
+	 mov cx,[savecolumnS]
+	 mov ax,[saverowS]
+	 mov [Column],cx
+	 mov [Row],ax
+	 
+	 
+	 call lineprintO
+	 
+	 mov cx,[savecolumnS]
+	 mov ax,[saverowS]
+	 mov [Column],cx
+	 mov [Row],ax
+	
+	 cmp bl,5
+	 jne Squaresdelete
+	 inc [counterD]
+	 cmp [counterD],1
+	 
+	 jne deleteSquares
+
+	 push [adress]
+	 ret 
+	 endp deleteSquaresRow
+
+
+;--------------------------------------------
+
+proc delete1Square
+pop [adress]
+	 MOV [color],0
+		xor bX,bX
+		mov si ,[columnD]
+		mov di,[rowD]
+		mov [column],si
+		mov [row],di
+	 xor cx,cx
+	 xor ax,ax
+	 MOV [saveColumnS],0
+	 MOV [saveRowS],0
+	  
+	 mov cx,[column]
+	 mov ax,[row]
+	 mov [saveColumnS],cx
+	 mov [saveRowS],ax
+
+	
+	 call lineprintA
+	 
+	
+	 mov cx,[savecolumnS]
+	 mov ax,[saverowS]
+	 mov [Column],cx
+	 mov [Row],ax
+	 
+	 
+	 call lineprintO
+	 
+	 mov cx,[savecolumnS]
+	 mov ax,[saverowS]
+	 mov [Column],cx
+	 mov [Row],ax
+	
+	
+
+	 push [adress]
+	 ret 
+	 endp delete1Square
+
+;--------------------------------------------
+proc checkingSquare
+	Ycheck:
+	mov [RowD],90
+	cmp [yball],110
+	jbe Xcheck
+	mov [RowD],112
+	cmp [yball],132
+	jbe  Xcheck
+	mov [RowD],134
+	cmp [yball],154
+	jbe  Xcheck
+	mov [RowD],156
+	cmp [yball],176
+	jbe  Xcheck
+
+	Xcheck:
+	mov [COLUMND],180
+	cmp [xball],180
+	jae exitCheck
+	 mov [COLUMND],158
+	cmp [xball],158
+	jae exitCheck
+	 mov [COLUMND],136
+	cmp [xball],136
+	jae exitCheck
+	mov [COLUMND],114
+	cmp [xball],114
+	jae exitCheck
+	 mov [COLUMND],92
+	cmp [xball],92
+	jae exitCheck
+
+
+exitCheck:
+call delete1Square
+jmp afterChecking
+endp checkingSquare
+;--------------------------------------------
+
+
+
+StartX equ [word ptr bp-2]
+LastX equ [word ptr bp-4]
+
+proc LinePrintO
+    push bp
+	mov bp,sp
+
+	push AX
+	push CX
+	push DX
+	push Di
+	PUSH SI
+	
+	
+	xor di,di
+	add di,[Column]
+	MOV StartX,di
+	add di , 20
+	mov LastX,di
+	mov si,[Row]
+	ADD SI,20
+
+	
+	
+   LineLoop:
+	call PixelPrintS
+	
+	inc [Column]
+	cmp CX,di
+   JNE LineLoop
+   
+   MOV di,StartX
+   MOV [Column],di
+	add di , 20
+   add [Row],20
+   cmp [Row],SI
+   je LineLoop
+   
+   POP SI
+	pop Di
+	pop DX
+	pop CX
+	pop AX
+	pop bp
+	ret 
+endp LinePrintO
+;--------------------------------------------
+
+
+StartY equ [word ptr bp-2]
+LastY equ [word ptr bp-4]
+proc LinePrintA
+    push bp
+	mov bp,sp
+
+	push AX
+	push CX
+	push DX
+	push Di
+	push si
+
+	
+	
+	xor di,di
+	mov di,[Row]
+	MOV StartY,di
+	add di , 20
+	mov LastY,Di
+	mov si,[Column]
+	add SI,20
+	
+	
+	
+   LineLoopA:
+	call PixelPrintS
+	
+	inc [Row]
+	cmp DX,di
+   JNE LineLoopA
+   
+   MOV di,StartY
+   MOV [Row],di
+	add di , 20
+   add [Column],20
+  
+   cmp [Column],SI
+   je LineLoopA
+   
+   pop si
+	pop Di
+	pop DX
+	pop CX
+	pop AX
+	pop bp
+	ret 8
+endp LinePrintA
+
+
+;---------n-----------------------------------
+
+
+startY equ [word ptr bp-8]
+StartX equ [word ptr bp-10]
+SaveRow equ [word ptr bp-12]
+SaveColunm equ [word ptr bp-14]
+
+
+proc frame
+ pushall
+ mov bp,sp
+
+
+
+
+; אורך
+	xor di,di
+	mov di,[Row]
+	MOV SaveRow,DI 
+	MOV StartY,di
+	add di , 132 ; the height of the line
+	mov si,[Column]
+	MOV SaveColunm,SI;;;
+	add SI,110
+	
+	
+	
+   LineLooppA:
+	MOV AH,0Ch
+	MOV AL,15
+	MOV CX,[Column] ; 0 ≤ X ≤ 319
+	MOV DX,[Row]	; 0 ≤ Y ≤ 199
+	INT 10H
+	
+	inc [Row]
+	cmp DX,di
+   JNE LineLooppA
+   
+   MOV di,StartY
+   MOV [Row],di
+	add di , 132; the length of the line
+   add [Column],110
+  
+   cmp [Column],SI
+   je LineLooppA
+   
+   restreg ; reset all the registers 
+   
+   ;רוחב
+   
+   	add di,SaveColunm
+	MOV StartX,di
+	add di , 110 ; the length of the line
+	mov si,SAVERow
+	ADD SI,132
+
+	
+	
+   LineLoopO:
+	MOV AH,0Ch
+	MOV AL,15
+	MOV CX,SaveColunm; 0 ≤ X ≤ 319
+	MOV DX,SAVERow	; 0 ≤ Y ≤ 199
+	INT 10H
+	
+	inc SaveColunm
+	cmp CX,di
+   JNE LineLoopO
+   
+   MOV di,StartX
+   MOV SaveColunm,di
+	add di , 110
+   add saveRow,132
+   cmp SaveRow,SI
+   je LineLoopO
+   
+ popall
+ret 
+endp frame
+
+
+
+;---------n-----------------------------------
+
+proc LinePrint2
+    push bp
+	mov bp,sp
+
+	push AX
+	push BX
+	push CX
+	push DX
+
+	call GraficMode
+	
+	
+	mov bx,[Row]
+	dec [Row]
+	add bx,1
+	
+loopForNextLine:
+ inc [Row]
+   LineLoop1:
+	MOV AH,0Ch
+	MOV AL,1
+	MOV CX,[Column ]; 0 ≤ X ≤ 319
+	MOV DX,[Row]	; 0 ≤ Y ≤ 199
+	INT 10H
+	
+	
+	inc [Column]
+	cmp CX,319
+   JNE LineLoop1
+   
+    
+	mov [Column],0
+	cmp [Row],bx
+	JNE loopForNextLine
+	
+	pop DX
+	pop CX
+	pop BX
+	pop AX
+	pop bp
+	ret 8
+endp LinePrint2
+
+;--------------------------------------------
+
+
+
+
+len1 equ [word ptr bp+12]
+len2 equ [word ptr bp+10]
+
+StartX equ [word ptr bp-2]
+
+proc drawRect
+    push bp
+	mov bp,sp
+
+	push AX
+	push BX
+	push CX
+	push DX
+
+	
+	
+	
+	mov bx,[Row]
+	dec[Row]
+	add bx,len2
+	
+	
+	mov CX,[Column]
+	add len1,CX; x-הארכת האורך ביחס ל
+	mov StartX,CX
+	xor di,di
+	
+	
+loopForNextLines:
+cmp di,0
+je LineLoopp
+ inc [Row]
+   LineLoopp:
+	MOV AH,0Ch
+	MOV AL,[byte ptr color]
+	MOV CX,[Column] ; 0 ≤ X ≤ 319
+	MOV DX,[Row]	; 0 ≤ Y ≤ 199
+	INT 10H
+	
+	add di,1
+	inc [Column]
+	cmp CX,len1
+   JNE LineLoopp
+   
+    MOV di,StartX
+	mov [Column],di
+	cmp [Row],bx
+	JNE loopForNextLines
+	
+	pop DX
+	pop CX
+	pop BX
+	pop AX
+	pop bp
+	ret 10
+endp drawRect
+
+;--------------------------------------------
+
+
+proc GraficMode
+    mov AL,13h
+	mov AH,0
+	int 10h
+	ret
+endp GraficMode
+
+
+
+;--------------------------------------------
+proc TextMode
+    MOV AL, 3H
+	MOV AH, 0
+	INT 10H
+	ret
+endp TextMode
+
+;--------------------------------------------
+
+
+proc space
+ pushall
+ mov ah, 0eh        
+mov al, ' '
+xor bx, bx           
+mov bl, 2           
+int 10h
+popall
+ret
+endp space
+
+
+;--------------------------------------------
+
+
+proc NewLine
+ pushall
+MOV dl, 10
+MOV ah, 02h
+INT 21h
+MOV dl, 13
+MOV ah, 02h
+INT 21h
+ popall
+ret
+endp NewLine
+
+
+;--------------------------------------------
+ proc printValue
+ ; פרוצדורה מקבלת הודעה
+ ;פרוצדורה מדפיסה את ההודעה
+	push ax
+	push bx
+	push dx
+	mov dh, 12	;y
+	mov dl, 12	;x
+	mov bh, 0	;page
+	mov ah, 2
+	int 10h 
+	mov dx, offset ValueLine
+	mov ah,9
+	int 21h
+	pop dx
+	pop bx
+	pop ax
+	ret
+endp printValue
+
+
+
+;--------------------------------------------
+
+ proc printScore
+ ; פרוצדורה מקבלת הודעה
+ ;פרוצדורה מדפיסה את ההודעה
+	push ax
+	push bx
+	push dx
+	mov dh, 0	;y
+	mov dl, 12	;x
+	mov bh, 0	;page
+	mov ah, 2
+	int 10h 
+	mov dx, offset ScoreBuffer
+	mov ah,9
+	int 21h
+	pop dx
+	pop bx
+	pop ax
+	ret
+endp printScore
+;--------------------------------------------
+proc printArrow													
+;פרוצדורה מקבלת ציור
+;הפרוצדורה מעבירה את הפרמטרים להדפסה
+	push offset Arrow	;שם האייקון
+	push 12d	;Width	
+	push 14d	;Height
+	push 15d	;Color
+	push 139d ; x location
+	push 178d ;y location
+	call drawIcon
+	ret
+endp printArrow
+;--------------------------------------------
+
+proc printBall													
+;פרוצדורה מקבלת ציור
+;הפרוצדורה מעבירה את הפרמטרים להדפסה
+
+	push offset ball	;שם האייקון
+	push [WidthBall];	;Width	
+	push [HeightBall];	;Height
+	push [ColorBall];	;Color
+	push [Xball]; x location
+	push [YBall] ;y location
+	call drawIcon
+	ret
+endp printBall
+;--------------------------------------------
+proc drawIcon
+;פרוצדורה מקבלת מיקום ותמונה
+;פרוצדורה מדפיסה תמונה במיקום המבוקש
+iconOffset	EQU [BP+14] ;מספר האייקון
+iconWidth	EQU	[BP+12] ;רוחב האייקון
+iconHeight	EQU	[BP+10] ;גובה האייקון
+iconColor	EQU	[BP+8] ;צבע האייקון
+iconX EQU [BP+6] ;מיקום ציר X
+iconY EQU [BP+4] ;מיקום ציר Y
+
+	push bp
+	mov bp,sp
+	PushAll
+	mov si,0
+	mov di,0
+	mov bx,iconOffset
+	mov dx,iconY
+bigLoop:	
+	cmp [word ptr bx],0
+	je afterPixel
+	MOV AX,iconColor
+	MOV AH,0Ch
+	MOV CX,iconX
+	ADD CX,SI	
+	INT 10H
+afterPixel:
+	inc bx
+	inc si
+	cmp si,iconWidth
+	jne bigLoop
+	mov si,0
+	inc dx
+	inc di
+	cmp di,iconHeight
+	jne bigLoop
+	PopAll
+	pop bp
+	ret 12
+endp drawIcon
+;--------------------------------------------
+
+
+proc VelocityBall
+push ax
+push di
+xor ax,ax
+
+	call SecWait
+	
+	call DeleteBall
+	mov di,[Yvelocity]
+	mov ax,[Xvelocity]
+add [Xball],ax
+sub [YBall],di
+mov [colorBall],8
+
+pop di
+pop ax
+ret
+endp VelocityBall
+;--------------------------------------------
+proc DeleteBall
+mov [colorBall],0
+call printBall
+cmp [yball],191
+jb GoOn
+inc [counterB]
+cmp [counterB],2
+jae stop
+GoOn:
+ret
+endp deleteBall
+;--------------------------------------------
+
+proc MovementBall
+pop [adress]
+pushall
+	 movementLoop:
+	 call printBall
+	 call VelocityBall
+	 call checkColor
+	 return:
+	  CMP [colorChecked],0
+	 JE CONTINUE
+	 call ChangeDirection
+	continue:
+	 cmp [yball],191
+	  jae stop
+	 cmp [xball],95
+	 jbe changeX
+	 cmp [xball],189
+	 ja changeX
+	 
+	  cmp [Yball],72
+	 jb changeY
+	
+	 cmp [yball],191
+	 jb movementLoop
+	 
+	 
+	 
+	 
+	changeY:
+	 neg [Yvelocity]
+	 jmp movementLoop
+	 
+	 changeX:
+	 neg [Xvelocity]
+	 jmp movementLoop
+	 
+	 stop:
+	 mov di,[xball]
+	 mov [NextStart],di
+	
+popall
+push [adress]
+ ret 
+endp MovementBall
+
+;--------------------------------------------
+proc ChangeDirection
+	cmp [colorChecked],5
+	JA afterChecking
+	cmp [colorChecked],15
+	Je afterChecking
+	cmp [row],90
+	JE Ychange
+	cmp [row],110
+	JE Ychange
+	cmp [row],112
+	JE Ychange
+	cmp [row],132
+	JE Ychange
+	cmp [row],134
+	JE Ychange
+	cmp [row],154
+	JE Ychange 
+	cmp [row],156
+	JE Ychange
+	cmp [row],176
+	JE Ychange
+
+	jmp Xchange
+
+	Ychange:
+	 neg [Yvelocity]
+	 jmp ExitChanging
+	 
+	 Xchange:
+	 neg [Xvelocity]
+	 jmp ExitChanging
+
+
+
+ExitChanging:
+	call checkingSquare
+	afterChecking:
+	mov [colorChecked],0
+	jmp continue
+ret
+endp ChangeDirection
+;--------------------------------------------
+proc SecWait
+mov [counterT],0
+	ifNot:
+	inc [counterT]
+	ifYes:
+	mov [SaveDl],dl
+	mov ah, 2Ch
+	int 21h
+	mov al,dh
+	
+	cmp [SaveDl],dl
+	JE ifYes
+	cmp [counterT],1
+	JNE ifNot
+	
+	ret
+endp SecWait	
+;--------------------------------------------
+
+proc GetRandom;get random between (0-([GetRandomBetween]-1)) and put it in [random]
+
+	 PushAll
+	mov ah,2ch
+	int 21h;get clock millisecs and put it in dl
+	xor dh,dh
+	mov ax,dx
+		
+	div [GetRandomBetween];divid the random number with [GetRandomBetween] and put the reminder in ah
+		
+	mov [random],ah;put the random reminder in [random]
+	inc [random]
+	
+	  PopAll
+	
+	ret
+endp GetRandom
+
+
+;--------------------------------------------
+proc squersValue1
+	lineP:
+	call newline
+	dec [CounterL]
+	cmp [CounterL],0
+	JA lineP
+	
+	spaceP:
+	call space
+	dec [CounterSp]
+	cmp [CounterSp],0
+	JA SpaceP
+	  
+	mov dl,'1'
+	mov ah,2
+	int 21h
+	
+	mov [counterSp],2
+	dec [squersCount]
+	cmp [squersCount],0
+	JA SpaceP
+
+
+
+
+
+	ret
+endp squersValue1
+;--------------------------------------------
+proc ValueR1
+push di
+
+mov di,[offset arrayRow1+3]
+mov [offset arrayRow1+4],di
+xor di,di
+
+mov di,[offset arrayRow1+2]
+mov [offset arrayRow1+3],di
+xor di,di
+
+mov di,[offset arrayRow1+1]
+mov [offset arrayRow1+2],di
+xor di,di
+
+mov di,[offset arrayRow1]
+mov [offset arrayRow1+1],di
+xor di,di
+
+mov di,[CounterScore]
+mov [offset arrayRow1],di
+xor di,di
+
+
+pop di
+
+ret
+endp ValueR1
+
+
+
+;--------------------------------------------
+proc ValueR2
+push di
+
+mov di,[offset arrayRow2+3]
+mov [offset arrayRow2+4],di
+xor di,di
+
+mov di,[offset arrayRow2+2]
+mov [offset arrayRow2+3],di
+xor di,di
+
+mov di,[offset arrayRow2+1]
+mov [offset arrayRow2+2],di
+xor di,di
+
+mov di,[offset arrayRow2]
+mov [offset arrayRow2+1],di
+xor di,di
+
+mov di,[CounterScore]
+mov [offset arrayRow2],di
+xor di,di
+
+
+pop di
+
+ret
+endp ValueR2
+
+
+
+
+;--------------------------------------------
+proc ValueR3
+push di
+
+mov di,[offset arrayRow3+3]
+mov [offset arrayRow3+4],di
+xor di,di
+
+mov di,[offset arrayRow3+2]
+mov [offset arrayRow3+3],di
+xor di,di
+
+mov di,[offset arrayRow3+1]
+mov [offset arrayRow3+2],di
+xor di,di
+
+mov di,[offset arrayRow3]
+mov [offset arrayRow3+1],di
+xor di,di
+
+mov di,[CounterScore]
+mov [offset arrayRow3],di
+xor di,di
+
+
+pop di
+
+ret
+endp ValueR3
+
+
+
+
+;--------------------------------------------
+proc ValueR4
+push di
+
+mov di,[offset arrayRow4+3]
+mov [offset arrayRow4+4],di
+xor di,di
+
+mov di,[offset arrayRow4+2]
+mov [offset arrayRow4+3],di
+xor di,di
+
+mov di,[offset arrayRow4+1]
+mov [offset arrayRow4+2],di
+xor di,di
+
+mov di,[offset arrayRow4]
+mov [offset arrayRow4+1],di
+xor di,di
+
+mov di,[CounterScore]
+mov [offset arrayRow4],di
+xor di,di
+
+
+pop di
+
+ret
+endp ValueR4
+
+
+
+
+;--------------------------------------------
+proc ValueR5
+push di
+
+mov di,[offset arrayRow5+3]
+mov [offset arrayRow5+4],di
+xor di,di
+
+mov di,[offset arrayRow5+2]
+mov [offset arrayRow5+3],di
+xor di,di
+
+mov di,[offset arrayRow5+1]
+mov [offset arrayRow5+2],di
+xor di,di
+
+mov di,[offset arrayRow5]
+mov [offset arrayRow5+1],di
+xor di,di
+
+mov di,[CounterScore]
+mov [offset arrayRow5],di
+xor di,di
+
+
+pop di
+
+ret
+endp ValueR5
+
+;--------------------------------------------
+
+
+proc changeCursur ; Change The Cursur To Cursur 1
+;פרוצדורה מקבלת אופסט עכבר
+;פרוצדורה מדפיסה צורת עכבר חדש 
+	mov ax, 0009h
+	push ds
+	pop es
+	mov bx, 8
+	mov cx, 9
+	mov dx, offset Arrow
+	int 33h
+	ret
+endp changeCursur ; The Cursur Is Now A Variable That I Entered
+
+
+
+;--------------------------------------------
+
+
+
+proc MousePress
+; בודקת לחיצת עכבר
+ iMouse; ithul achbar
+call changeCursur ;change mouse shape
+ ActiveMouse
+loopMouse:
+     TMouse;tishul
+     SHR CX,1 ;Div 2
+cmp bx,1 ;check if player pressed the mouse and dec counter
+je open
+jmp loopMouse
+open:
+	 TMouse
+     shr cx,1 ;div 2
+     mov [xLoc],cx ; result x cordination of mouse in xLoc
+     mov [yLoc],dx	; result y cordination of mouse in yLoc
+ 	 ;check if player pressed in range	 
+	 call NotInRange
+	 cmp [notInRangee],1 ; wait for another press and start over...
+	 je loopMouse
+	 ;end checking range
+
+ret 
+endp MousePress
+
+
+
+;--------------------------------------------
+proc NotInRange
+;פרוצדורה מקבלת מיקום לחיצת עכבר
+;פרוצדורה בודקת האם העכבר נמצא בטווח הלוח
+     cmp[xLoc],136 
+	 jna NotInRange1
+	 cmp[xLoc],156
+	 ja NotInRange1
+	 cmp [yLoc],15
+	 jna NotInRange1
+	 cmp [yLoc],40
+	 ja NotInRange1
+	 mov [notInRangee],0
+     jmp endNotInRange
+NotInRange1:
+	 mov [notInRangee],1
+endNotInRange:
+     ret 
+     endp NotInRange
+
+
+;--------------------------------------------
+
+
+
