@@ -1,0 +1,52 @@
+IDEAL
+MODEL small
+STACK 100h
+DATASEG
+
+include "var.asm"
+
+CODESEG
+include "procs.asm"
+
+
+
+start:
+	mov ax, @data
+	mov ds, ax
+		
+	call GraficMode
+	
+
+	call GetRandom
+
+	call frame
+	 
+	call PrintScore
+	
+	call setValue
+	call randomSquares
+	call printingsquers
+	
+	 call printBall
+	
+playing:
+	call clearkeyboardbuffer
+	
+	mov [counterb],0
+	mov yball,190
+	
+	call arrowdirect
+	call MovementBall
+	
+	jmp playing
+	RESTREG
+	finish:
+
+	
+
+	
+exit:
+	mov ax, 4c00h
+	int 21h
+	
+END start 
